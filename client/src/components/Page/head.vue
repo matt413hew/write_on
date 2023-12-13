@@ -13,9 +13,8 @@ export default {
 }
 </script>
 <template>
-  <div class="bg-white m-0 py-5 px-9 rounded-3xl">
-    <div class="text-4xl pb-3 text-slate-800 font-semibold"><slot></slot></div>
-    <div class="border border-slate-400"></div>
+  <div class="pb-5 m-0 bg-transparent px-9 rounded-3xl">
+    <div class="pb-3 text-4xl font-semibold text-slate-800"><slot></slot></div>
   </div>
 </template>
 
