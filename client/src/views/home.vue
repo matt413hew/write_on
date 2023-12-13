@@ -21,7 +21,10 @@ export default {
     }
   },
   watch: {},
-  mounted() {},
+  async mounted() {
+    let x = await this.$main.test()
+    console.log(x)
+  },
   methods: {}
 }
 </script>
@@ -32,10 +35,14 @@ export default {
     <PageBody>
       <div class="flex items-center gap-2">
         <div class="w-full">
-          <Tbtn stretch @click="tab = 'edit'" :selected="tab == 'edit'"> For Edit </Tbtn>
+          <Tbtn stretch @click="tab = 'edit'" :selected="tab == 'edit'">
+            <span class="text-2xl"> For Edit </span>
+          </Tbtn>
         </div>
         <div class="w-full">
-          <Tbtn stretch @click="tab = 'publish'" :selected="tab == 'publish'"> Published </Tbtn>
+          <Tbtn stretch @click="tab = 'publish'" :selected="tab == 'publish'">
+            <span class="text-2xl"> Published </span>
+          </Tbtn>
         </div>
       </div>
       <div>
@@ -45,7 +52,9 @@ export default {
           enter-active-class="ease[cubic-bezier(.26,.61,0,1.12)] duration-[0.3s] delay-150"
         >
           <div v-if="tab == 'edit'" class="pt-7">
-            <div class="pb-4 text-5xl font-semibold text-center text-neutral-700">
+            <div
+              class="pb-4 lg:text-5xl md:text-4xl sm:text-3xl text-2xl font-semibold text-center text-neutral-700"
+            >
               Articles for editing
             </div>
 

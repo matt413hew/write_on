@@ -49,6 +49,7 @@ export default {
 </script>
 <template>
   <div class="flex flex-row h-screen">
+    <add-article class="fixed bottom-5 right-5"></add-article>
     <div
       @mouseover="pin == true ? (isOpen = true) : (isOpen = true)"
       @mouseleave="pin == true ? (isOpen = true) : (isOpen = false)"
@@ -95,7 +96,7 @@ export default {
               <div
                 :class="{
                   'w-0 transform ': !isOpen,
-                  'w-56 transform ': isOpen,
+                  'w-64 transform ': isOpen,
                   'duration-300 ease-in-out overflow-hidden': true
                 }"
               >
@@ -125,7 +126,7 @@ export default {
     </div>
     <div class="w-full h-full px-2 pb-5 lg:pt-5">
       <div class="flex flex-col w-full h-full gap-3">
-        <div class="block p-4 bg-slate-900 text-slate-50 rounded-b-3xl lg:hidden">
+        <div class="block p-4 bg-neutral-900 text-slate-50 rounded-b-3xl lg:hidden">
           <div class="flex items-center justify-between">
             <br />
             <span class="flex gap-2 text-4xl font-bold"
@@ -144,7 +145,6 @@ export default {
               </span>
             </span>
             <div class="flex items-center gap-1">
-              <add-article></add-article>
               <div
                 class="rounded-full bg-white border-4 border-neutral-500 w-14 h-14 bg-[url('https://api.dicebear.com/7.x/notionists/svg?seed=Matthew')]"
               ></div>
