@@ -13,12 +13,24 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
+        $editor = User::create([
             'username' => 'editor',
             'first_name' => 'John',
             'last_name' => 'Doe',
-            'password' => 'password123',
+            'password' => 'editorpass',
             'active' => true,
         ]);
+
+        $editor->assignRole('editor');
+
+        $writer = User::create([
+            'username' => 'writer',
+            'first_name' => 'Jane',
+            'last_name' => 'Doe',
+            'password' => 'writerpass',
+            'active' => true,
+        ]);
+
+        $writer->assignRole('writer');
     }
 }

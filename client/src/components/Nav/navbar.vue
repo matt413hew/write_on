@@ -6,6 +6,7 @@ export default {
   name: 'Nav',
   data() {
     return {
+      user: null,
       isOpen: false,
       pin: false,
       newA: false,
@@ -25,7 +26,10 @@ export default {
       ]
     }
   },
-  mounted() {},
+  mounted() {
+    this.user = this.$main.getUser
+    this.user.avatar = `https://api.dicebear.com/7.x/notionists/svg?seed=${this.user.first_name}'`
+  },
   methods: {
     toggleSidebar() {
       this.isOpen = !this.isOpen
@@ -43,13 +47,19 @@ export default {
         // Evening
         return 'Good evening'
       }
+    },
+    async logout() {
+      this.$notify.Loading.pulse('Logging out...')
+      await this.$main.logout()
+      this.$router.push({ name: 'Login' })
+      this.$notify.Loading.remove()
     }
   }
 }
 </script>
 <template>
   <div class="flex flex-row h-screen">
-    <add-article class="fixed bottom-5 right-5"></add-article>
+    <add-article class="fixed bottom-5 right-5" :role="user?.role"></add-article>
     <div
       @mouseover="pin == true ? (isOpen = true) : (isOpen = true)"
       @mouseleave="pin == true ? (isOpen = true) : (isOpen = false)"
@@ -141,13 +151,28 @@ export default {
           <div class="flex items-center justify-between pb-2">
             <span class="font-light lg:text-5xl">
               <span class="text-slate-900"
-                >{{ greet() }}, <span class="font-normal"> Luffy </span>
+                >{{ greet() }}, <span class="font-normal"> {{ user?.first_name }} </span>
               </span>
             </span>
             <div class="flex items-center gap-1">
-              <div
-                class="rounded-full bg-white border-4 border-neutral-500 w-14 h-14 bg-[url('https://api.dicebear.com/7.x/notionists/svg?seed=Matthew')]"
-              ></div>
+              <div class="dropdown dropdown-bottom dropdown-end">
+                <div tabindex="0" role="button" :class="user?.avatar ? user.avatar : null">
+                  <img
+                    class="bg-white border-4 rounded-full border-neutral-500 w-14 h-14"
+                    :src="user?.avatar"
+                    alt=""
+                    srcset=""
+                  />
+                </div>
+                <div class="">
+                  <ul
+                    tabindex="0"
+                    class="dropdown-content bg-neutral-50 text-neutral-900 z-[1] menu p-2 m-1 shadow rounded-box w-52"
+                  >
+                    <li @click="logout()"><a>Logout</a></li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
           <hr class="h-px my-1 bg-gray-200 border-0 dark:bg-neutral-400" />

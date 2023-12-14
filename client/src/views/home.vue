@@ -21,10 +21,7 @@ export default {
     }
   },
   watch: {},
-  async mounted() {
-    let x = await this.$main.test()
-    console.log(x)
-  },
+  async mounted() {},
   methods: {}
 }
 </script>
@@ -53,7 +50,7 @@ export default {
         >
           <div v-if="tab == 'edit'" class="pt-7">
             <div
-              class="pb-4 lg:text-5xl md:text-4xl sm:text-3xl text-2xl font-semibold text-center text-neutral-700"
+              class="pb-4 text-2xl font-semibold text-center lg:text-5xl md:text-4xl sm:text-3xl text-neutral-700"
             >
               Articles for editing
             </div>

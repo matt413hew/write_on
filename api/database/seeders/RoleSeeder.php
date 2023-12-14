@@ -2,18 +2,18 @@
 
 namespace Database\Seeders;
 
-use App\Models\ArticleStatus;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
-class ArticleStatusSeeder extends Seeder
+class RoleSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        ArticleStatus::create(['name' => 'For edit']);
-        ArticleStatus::create(['name' => 'Published']);
+        Role::create(['name' => 'editor']);
+        Role::create(['name' => 'writer']);
     }
 }

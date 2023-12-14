@@ -22,9 +22,20 @@ export default {
       await this.$main
         .login(this.user)
         .then((res) => {
-          if (res.data?.message == 'success') {
+          console.log(res)
+          if (res == 'success') {
+            this.$router.push({
+              name: 'Default layout'
+            })
+            this.$notify.Notify.success('Welcome back!')
           } else {
-            this.errors = res
+            if (res?.response?.data?.message) {
+              this.errors = {
+                creds: [res.response.data.message]
+              }
+            } else {
+              this.errors = res.data
+            }
           }
         })
         .catch((err) => {
@@ -36,12 +47,12 @@ export default {
 }
 </script>
 <template>
-  <div class="w-screen h-screen bg-neutral-100 flex justify-center items-center">
+  <div class="flex items-center justify-center w-screen h-screen bg-neutral-100">
     <div>
-      <div class="text-neutral-800 text-center flex flex-col gap-2">
+      <div class="flex flex-col gap-2 text-center text-neutral-800">
         <div class="text-6xl font-light">Welcome to</div>
         <div
-          class="text-8xl flex justify-center items-center font-extralight pb-4 border-y-2 border-neutral-500"
+          class="flex items-center justify-center pb-4 text-8xl font-extralight border-y-2 border-neutral-500"
         >
           Write_on|
         </div>
@@ -49,7 +60,7 @@ export default {
       </div>
       <div
         v-if="errors"
-        class="flex flex-col gap-2 text-center mt-5 p-3 rounded-3xl bg-rose-400 text-neutral-900"
+        class="flex flex-col gap-2 p-3 mt-5 text-center rounded-3xl bg-rose-400 text-neutral-900"
       >
         <div v-for="err in errors" v-bind:key="err[0]">{{ err[0] }}</div>
       </div>
@@ -58,17 +69,17 @@ export default {
           v-model="user.username"
           type="text"
           placeholder="Username"
-          class="input text-neutral-900 bg-neutral-50 w-full input-bordered"
+          class="w-full input text-neutral-900 bg-neutral-50 input-bordered"
         />
         <input
           v-model="user.password"
           type="password"
           placeholder="Password "
-          class="input text-neutral-900 bg-neutral-50 w-full input-bordered"
+          class="w-full input text-neutral-900 bg-neutral-50 input-bordered"
         />
         <Tbtn @click="login()">
           <span class="text-xl">
-            <div class="flex items-center gap-1 px-3 py-1 justify-center">
+            <div class="flex items-center justify-center gap-1 px-3 py-1">
               Login <Icon class="text-2xl" icon="tabler:login-2" />
             </div>
           </span>
