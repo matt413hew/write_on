@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('image');
+            $table->unsignedBigInteger('image')->nullable();
             $table->string('title');
             $table->string('link');
             $table->timestamp('date');
             $table->longText('content');
             $table->unsignedBigInteger('status');
             $table->unsignedBigInteger('writer');
-            $table->unsignedBigInteger('editor');
+            $table->unsignedBigInteger('editor')->nullable();
             $table->unsignedBigInteger('company');
+            $table->string('slug')->unique();
             $table->timestamps();
         });
     }

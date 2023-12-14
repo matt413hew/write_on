@@ -24,10 +24,12 @@ import { pinia } from './stores'
 import Router from './router'
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+import useZoro from './composables/useZoro'
 
 
 
 const app = createApp(App)
+
 app.use(pinia)
 app.use(router)
 app.use(FloatingVue)
@@ -46,4 +48,5 @@ app.config.globalProperties.$main = useMainStore();
 app.config.globalProperties.$notify = notify;
 app.config.globalProperties.$api = api;
 app.config.globalProperties.$router = Router;
+app.config.globalProperties.$zoro = useZoro();
 app.mount('#app')

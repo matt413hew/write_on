@@ -1,8 +1,9 @@
 <?php
 
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,6 +23,10 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(
         Route::post('logout', [AuthController::class, 'logout']);
         //company
         Route::post('companies', [CompanyController::class, 'getCompanies']);
+        //article
+        Route::post('create/article', [ArticleController::class, 'createArticle']);
+        //image
+        Route::post('create/image', [ImageController::class, 'chunk_upload']);
     }
 );
 

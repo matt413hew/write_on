@@ -5,7 +5,7 @@ import { computed } from 'vue'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 export default {
   name: 'Edit Article',
-  emits: [],
+  emits: ['loading'],
   props: {
     newArticle: {
       type: Boolean,
@@ -29,11 +29,18 @@ export default {
         id: null,
         title: null,
         content: null,
-        image: null,
+        image: {
+          filename: null,
+          ext: null,
+          chunks: null,
+          img: null
+        },
         company: null,
         link: null,
         date: null
-      }
+      },
+      companies: null,
+      original_img: null
     }
   },
   watch: {},
@@ -46,11 +53,18 @@ export default {
       if (this.newArticle) {
         this.article = {
           id: null,
+          title: null,
           content: null,
-          image: null,
-          company: null
+          image: {
+            filename: null,
+            ext: null,
+            chunks: null,
+            img: null
+          },
+          company: null,
+          link: null,
+          date: null
         }
-      } else {
       }
     },
     handleImageChange(event) {
@@ -64,8 +78,81 @@ export default {
     },
     getCompanies() {
       this.$api.post('/companies').then((res) => {
-        console.log(res)
+        this.companies = res.data.companies
       })
+    },
+
+    fileselect(ev) {
+      const file = ev.target.files[0]
+      if (file) {
+        this.original_img = file
+
+        const options = {
+          maxSizeMB: 1,
+          maxWidth: 1920,
+          useWebWorkers: true
+        }
+        const compressImage = async () => {
+          try {
+            let compressedFile = await imageCompression(file, options)
+            this.article.image.filename = file.name
+            this.article.image.ext = file.name.split('.').pop()
+            this.article.image.img = compressedFile
+            this.original_img = URL.createObjectURL(compressedFile)
+          } catch (error) {
+            console.error(error)
+          }
+        }
+
+        compressImage()
+      }
+      this.article.image = {
+        filename: null,
+        ext: null,
+        chunks: null,
+        img: null
+      }
+    },
+    async saveArticle(publish) {
+      this.$emit('loading', true)
+      this.$notify.Loading.pulse('Saving article...')
+      this.article.image.chunks = this.$zoro.slice(this.article.image.img)
+      let count = 0
+      await this.article.image.chunks.forEach(async (item) => {
+        count++
+        let go = new FormData()
+        go.append('file', item)
+        go.append('filename', this.article.image.filename)
+        go.append('ext', this.article.image.ext)
+        let last = false
+        if (count == this.article.image.chunks.length) {
+          last = true
+        }
+        go.append('is_last', last)
+        await this.$api
+          .post('create/image', go)
+          .then((res) => {
+            if (last) {
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      })
+      // await this.$api
+      //   .post('create/article', this.article)
+      //   .then((res) => {
+      //     if (res.data.message == 'success') {
+      //       this.$notify.Notify.success('Successfully saved article')
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     console.log(err)
+      //   })
+      this.$notify.Loading.remove()
+      setTimeout(() => {
+        this.$emit('loading', false)
+      }, 800)
     }
   },
   computed: {
@@ -95,7 +182,8 @@ export default {
       if (
         this.article.title &&
         this.article.content &&
-        this.article.image &&
+        this.original_img &&
+        this.article.image.img &&
         this.article.company &&
         this.article.link &&
         this.article.date
@@ -136,12 +224,18 @@ export default {
                     >
                   </div>
                   <select
+                    v-if="companies"
                     v-model="article.company"
                     class="w-full bg-transparent select select-bordered"
                   >
                     <option :value="null" disabled selected>Select company</option>
-                    <option value="1">Han Solo</option>
-                    <option value="2">Greedo</option>
+                    <option
+                      v-for="company in companies"
+                      :value="company.id"
+                      v-bind:key="company.id"
+                    >
+                      {{ company.name }}
+                    </option>
                   </select>
                 </label>
                 <label class="form-control">
@@ -186,14 +280,14 @@ export default {
                     <span v-if="!article.image" class="text-rose-500 label-text-alt">Required</span>
                   </div>
                   <input
-                    @change="handleImageChange"
+                    @change="fileselect"
                     type="file"
                     accept="image/*"
                     class="w-full bg-transparent file-input-bordered file-input"
                   />
                 </label>
-                <div class="flex justify-center p-3" v-if="article?.image">
-                  <img :src="article.image" class="object-contain rounded-3xl h-60 w-60" />
+                <div class="flex justify-center p-3" v-if="article?.image.filename">
+                  <img :src="original_img" class="object-contain rounded-3xl h-60 w-60" />
                 </div>
               </div>
             </div>
@@ -224,7 +318,7 @@ export default {
           >
             <Icon class="text-2xl" icon="material-symbols:publish" />Publish
           </Tbtn>
-          <Tbtn pad="2" bg="sky" :selected="true"
+          <Tbtn @click="saveArticle(false)" pad="2" bg="sky" :selected="true"
             ><Icon class="text-2xl" icon="ic:baseline-save-as" /> Save
           </Tbtn>
         </div>

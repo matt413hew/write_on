@@ -6,6 +6,7 @@ notify.Loading.init({
     fontFamily: 'Lexend',
     svgColor: '#d4d4d4',
     svgSize: '200px',
+    zindex:999999999
 })
 notify.Notify.init({
     width: '30rem',
