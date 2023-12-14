@@ -12,6 +12,7 @@ import page from './components/Page/page.vue'
 import navitem from './components/Nav/navItem.vue'
 import button from './components/Button/Button.vue'
 import addarticle from './components/Article/AddArticle.vue'
+import updatearticle from './components/Article/EditArticle.vue'
 import editarticle from './components/Article/Editor.vue'
 import { Icon } from '@iconify/vue';
 import 'floating-vue/dist/style.css'
@@ -25,6 +26,7 @@ import Router from './router'
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import useZoro from './composables/useZoro'
+import { TailwindPagination } from 'laravel-vue-pagination';
 
 
 
@@ -35,6 +37,7 @@ app.use(router)
 app.use(FloatingVue)
 app.provide('dayjs', dayjs);
 app.component('VueDatePicker', VueDatePicker);
+app.component('Paginate', TailwindPagination);
 app.component('Tbtn',button)
 app.component('NavItem',navitem)
 app.component('PageBody',body)
@@ -43,6 +46,7 @@ app.component('Page',page)
 app.component('Icon',Icon)
 app.component('AddArticle',addarticle)
 app.component('EditArticle',editarticle)
+app.component('UpdateArticle',updatearticle)
 app.config.globalProperties.$dayjs = dayjs;
 app.config.globalProperties.$main = useMainStore();
 app.config.globalProperties.$notify = notify;

@@ -25,10 +25,15 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(
         Route::post('companies', [CompanyController::class, 'getCompanies']);
         //article
         Route::post('create/article', [ArticleController::class, 'createArticle']);
+        Route::post('publish/article', [ArticleController::class, 'publishArticle']);
+        Route::get('get/for-edit', [ArticleController::class, 'getForEdit']);
+        Route::get('get/published', [ArticleController::class, 'getPublished']);
+        Route::get('get/articles', [ArticleController::class, 'getAll']);
+        Route::post('get/article', [ArticleController::class, 'getArticle']);
+        Route::post('update/article', [ArticleController::class, 'updateArticle']);
         //image
         Route::post('create/image', [ImageController::class, 'chunk_upload']);
     }
 );
-
-
+Route::get('/preview_image/{file_name}', [ImageController::class, 'preview_image']);
 Route::post('login', [AuthController::class, 'login']);

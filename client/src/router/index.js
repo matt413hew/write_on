@@ -5,6 +5,7 @@ import All from "../views/allMedia.vue";
 import Nav from "../components/Nav/navbar.vue";
 import Login from "../views/login.vue";
 import notFound from "../views/notFound.vue";
+import companies from "../views/companies.vue";
 import { useMainStore } from '@/stores';
 
 const Router = createRouter({
@@ -21,6 +22,12 @@ const Router = createRouter({
        children: [
             { path: "/home", name: "Home", component: Home },
             { path: "/all", name: "All", component: All },
+            { path: "/companies",
+                meta:{
+                requiresEditor: true,
+                }, 
+              name: "Companies", component: companies 
+            },
        ]
     },
     {
@@ -49,6 +56,14 @@ Router.beforeEach((to, from, next) => {
       if (!auth.isLoggedin) {
          next({
         path: "/login",
+        });
+      }
+    }
+
+    if (to.matched.some((record) => record.meta.requiresEditor)) {
+      if (!auth.isEditor) {
+         next({
+        path: "/home",
         });
       }
     }

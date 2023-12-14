@@ -11,8 +11,8 @@ export default {
       type: Boolean,
       default: true
     },
-    editArticle: {
-      type: Object,
+    toeditArticle: {
+      type: Number,
       default: null
     },
     role: {
@@ -25,6 +25,8 @@ export default {
   },
   data() {
     return {
+      image_change: null,
+      image_change_id: null,
       article: {
         id: null,
         title: null,
@@ -47,8 +49,24 @@ export default {
   mounted() {
     this.checkType()
     this.getCompanies()
+    if (this.toeditArticle) {
+      this.get_article()
+    }
   },
   methods: {
+    get_article() {
+      this.$api.post('/get/article', { id: this.toeditArticle }).then((res) => {
+        let results = res.data
+        this.article.id = results.id
+        this.article.title = results.title
+        this.article.content = results.content
+        this.image_change = results.img.preview_link
+        this.image_change_id = results.img.id
+        this.article.company = results.company
+        this.article.link = results.link
+        this.article.date = results.date
+      })
+    },
     checkType() {
       if (this.newArticle) {
         this.article = {
@@ -113,14 +131,111 @@ export default {
         img: null
       }
     },
+    async updateArticle(publish) {
+      this.$emit('loading', true)
+      let proceed = false
+      let count = 0
+      let img_id = null
+      if (this.article.image.filename) {
+        this.article.image.chunks = this.$zoro.slice(this.article.image.img)
+        this.$notify.Loading.pulse('Uploading image')
+
+        for await (let item of this.article.image.chunks) {
+          count++
+          let go = new FormData()
+
+          go.append('file', item)
+          go.append('filename', this.article.image.filename)
+          go.append('ext', this.article.image.ext)
+          let last = false
+          if (count == this.article.image.chunks.length) {
+            last = true
+          }
+          go.append('is_last', last)
+          await this.$api
+            .post('create/image', go)
+            .then((res) => {
+              if (last) {
+                if (res.data.message == 'success') {
+                  proceed = true
+                  img_id = res.data.id
+                  this.$notify.Notify.success('Successfully uploaded image')
+                  this.$notify.Loading.change('Saving article...')
+                }
+              }
+            })
+            .catch((err) => {
+              console.log(err)
+            })
+        }
+      } else {
+        proceed = true
+        this.$notify.Loading.pulse('Saving changes')
+      }
+      let art_id = this.article.id
+      if (proceed) {
+        this.article.image_id = img_id ? img_id : this.image_change_id
+        await this.$api
+          .post('update/article', this.article)
+          .then((res) => {
+            if (res.data.message == 'success') {
+              proceed = true
+              art_id = res.data.id
+              this.$notify.Notify.success('Successfully saved article')
+            }
+          })
+          .catch((err) => {
+            proceed = false
+            console.log(err)
+          })
+      }
+      if (proceed && publish) {
+        let go = {
+          id: art_id
+        }
+        this.$notify.Loading.change('Publishing article...')
+        await this.$api.post('publish/article', go).then((res) => {
+          if (res.data.message == 'success') {
+            this.$notify.Notify.success('Successfully published')
+          }
+        })
+      }
+      this.$notify.Loading.remove()
+      setTimeout(() => {
+        this.$emit('loading', false)
+      }, 800)
+      if (!proceed) {
+        this.$notify.Notify.failure('Something went wrong')
+      } else {
+        this.original_img = null
+        this.article = {
+          id: null,
+          title: null,
+          content: null,
+          image: {
+            filename: null,
+            ext: null,
+            chunks: null,
+            img: null
+          },
+          company: null,
+          link: null,
+          date: null
+        }
+        this.get_article()
+      }
+    },
     async saveArticle(publish) {
       this.$emit('loading', true)
-      this.$notify.Loading.pulse('Saving article...')
+      this.$notify.Loading.pulse('Uploading image')
       this.article.image.chunks = this.$zoro.slice(this.article.image.img)
       let count = 0
-      await this.article.image.chunks.forEach(async (item) => {
+      let proceed = false
+      let img_id = null
+      for await (let item of this.article.image.chunks) {
         count++
         let go = new FormData()
+
         go.append('file', item)
         go.append('filename', this.article.image.filename)
         go.append('ext', this.article.image.ext)
@@ -133,26 +248,69 @@ export default {
           .post('create/image', go)
           .then((res) => {
             if (last) {
+              if (res.data.message == 'success') {
+                proceed = true
+                img_id = res.data.id
+                this.$notify.Notify.success('Successfully uploaded image')
+                this.$notify.Loading.change('Saving article...')
+              }
             }
           })
           .catch((err) => {
             console.log(err)
           })
-      })
-      // await this.$api
-      //   .post('create/article', this.article)
-      //   .then((res) => {
-      //     if (res.data.message == 'success') {
-      //       this.$notify.Notify.success('Successfully saved article')
-      //     }
-      //   })
-      //   .catch((err) => {
-      //     console.log(err)
-      //   })
+      }
+      let art_id = null
+      if (proceed) {
+        this.article.image_id = img_id
+        await this.$api
+          .post('create/article', this.article)
+          .then((res) => {
+            if (res.data.message == 'success') {
+              proceed = true
+              art_id = res.data.id
+              this.$notify.Notify.success('Successfully saved article')
+            }
+          })
+          .catch((err) => {
+            proceed = false
+            console.log(err)
+          })
+      }
+      if (proceed && publish) {
+        let go = {
+          id: art_id
+        }
+        this.$notify.Loading.change('Publishing article...')
+        await this.$api.post('publish/article', go).then((res) => {
+          if (res.data.message == 'success') {
+            this.$notify.Notify.success('Successfully published')
+          }
+        })
+      }
       this.$notify.Loading.remove()
       setTimeout(() => {
         this.$emit('loading', false)
       }, 800)
+      if (!proceed) {
+        this.$notify.Notify.failure('Something went wrong')
+      } else {
+        this.original_img = null
+        this.article = {
+          id: null,
+          title: null,
+          content: null,
+          image: {
+            filename: null,
+            ext: null,
+            chunks: null,
+            img: null
+          },
+          company: null,
+          link: null,
+          date: null
+        }
+      }
     }
   },
   computed: {
@@ -179,18 +337,31 @@ export default {
       return false
     },
     showbuttons() {
-      if (
-        this.article.title &&
-        this.article.content &&
-        this.original_img &&
-        this.article.image.img &&
-        this.article.company &&
-        this.article.link &&
-        this.article.date
-      ) {
-        return true
+      if (!this.image_change) {
+        if (
+          this.article.title &&
+          this.article.content &&
+          this.original_img &&
+          this.article.image.img &&
+          this.article.company &&
+          this.article.link &&
+          this.article.date
+        ) {
+          return true
+        }
+        return false
+      } else {
+        if (
+          this.article.title &&
+          this.article.content &&
+          this.article.company &&
+          this.article.link &&
+          this.article.date
+        ) {
+          return true
+        }
+        return false
       }
-      return false
     }
   }
 }
@@ -277,7 +448,7 @@ export default {
                 <label class="form-control">
                   <div class="label">
                     <span class="text-lg label-text text-neutral-700">Image</span>
-                    <span v-if="!article.image" class="text-rose-500 label-text-alt">Required</span>
+                    <span v-if="!original_img" class="text-rose-500 label-text-alt">Required</span>
                   </div>
                   <input
                     @change="fileselect"
@@ -286,8 +457,11 @@ export default {
                     class="w-full bg-transparent file-input-bordered file-input"
                   />
                 </label>
-                <div class="flex justify-center p-3" v-if="article?.image.filename">
+                <div class="flex justify-center p-3" v-if="article.image.filename">
                   <img :src="original_img" class="object-contain rounded-3xl h-60 w-60" />
+                </div>
+                <div class="flex justify-center p-3" v-if="!article.image.filename && image_change">
+                  <img :src="image_change" class="object-contain rounded-3xl h-60 w-60" />
                 </div>
               </div>
             </div>
@@ -308,19 +482,37 @@ export default {
         </div>
       </div>
       <div class="flex gap-2 modal-action">
-        <div v-if="showbuttons" class="flex gap-4">
-          <Tbtn
-            v-if="role == 'editor'"
-            pad="2"
-            bg="emerald"
-            :selected="true"
-            v-tooltip="'Save and publish article'"
-          >
-            <Icon class="text-2xl" icon="material-symbols:publish" />Publish
-          </Tbtn>
-          <Tbtn @click="saveArticle(false)" pad="2" bg="sky" :selected="true"
-            ><Icon class="text-2xl" icon="ic:baseline-save-as" /> Save
-          </Tbtn>
+        <div v-if="showbuttons">
+          <div class="flex gap-4" v-if="toeditArticle">
+            <Tbtn
+              @click="updateArticle(true)"
+              v-if="role == 'editor'"
+              pad="2"
+              bg="emerald"
+              :selected="true"
+              v-tooltip="'Save and publish article'"
+            >
+              <Icon class="text-2xl" icon="material-symbols:publish" />Save and Publish
+            </Tbtn>
+            <Tbtn @click="updateArticle(false)" pad="2" bg="sky" :selected="true"
+              ><Icon class="text-2xl" icon="ic:baseline-save-as" /> Save
+            </Tbtn>
+          </div>
+          <div v-else class="flex gap-4">
+            <Tbtn
+              @click="saveArticle(true)"
+              v-if="role == 'editor'"
+              pad="2"
+              bg="emerald"
+              :selected="true"
+              v-tooltip="'Save and publish article'"
+            >
+              <Icon class="text-2xl" icon="material-symbols:publish" />Publish
+            </Tbtn>
+            <Tbtn @click="saveArticle(false)" pad="2" bg="sky" :selected="true"
+              ><Icon class="text-2xl" icon="ic:baseline-save-as" /> Save
+            </Tbtn>
+          </div>
         </div>
         <form method="dialog">
           <button>

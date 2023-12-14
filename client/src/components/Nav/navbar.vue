@@ -10,7 +10,35 @@ export default {
       isOpen: false,
       pin: false,
       newA: false,
-      routes: [
+      mob_nav: false,
+      routes: []
+    }
+  },
+  mounted() {
+    this.user = this.$main.getUser
+    if (this.$main.isEditor) {
+      this.routes = [
+        {
+          name: 'Dashboard',
+          icon: 'bx:carousel',
+          route: '/home',
+          routeName: 'Home'
+        },
+        {
+          name: 'All media',
+          icon: 'la:newspaper',
+          route: '/all',
+          routeName: 'All'
+        },
+        {
+          name: 'Companies',
+          icon: 'mdi:company',
+          route: '/companies',
+          routeName: 'Companies'
+        }
+      ]
+    } else {
+      this.routes = [
         {
           name: 'Dashboard',
           icon: 'bx:carousel',
@@ -25,10 +53,7 @@ export default {
         }
       ]
     }
-  },
-  mounted() {
-    this.user = this.$main.getUser
-    this.user.avatar = `https://api.dicebear.com/7.x/notionists/svg?seed=${this.user.first_name}'`
+    this.user.avatar = `https://api.dicebear.com/7.x/notionists/svg?seed=${this.user?.first_name}'`
   },
   methods: {
     toggleSidebar() {
@@ -137,15 +162,55 @@ export default {
     <div class="w-full h-full px-2 pb-5 lg:pt-5">
       <div class="flex flex-col w-full h-full gap-3">
         <div class="block p-4 bg-neutral-900 text-slate-50 rounded-b-3xl lg:hidden">
-          <div class="flex items-center justify-between">
-            <br />
-            <span class="flex gap-2 text-4xl font-bold"
-              ><Icon icon="arcticons:writeilypro" />Write_on</span
-            >
-            <div>
-              <Icon class="text-2xl" icon="icon-park-outline:hamburger-button" />
+          <div tabindex="0" class="collapse" :class="mob_nav ? 'collapse-open' : 'collapse-close'">
+            <div class="flex items-center justify-between">
+              <br />
+              <span class="flex gap-2 text-4xl font-bold"
+                ><Icon icon="arcticons:writeilypro" />Write_on</span
+              >
+              <div @click="mob_nav = !mob_nav">
+                <Icon class="text-2xl collapse-title" icon="icon-park-outline:hamburger-button" />
+              </div>
+            </div>
+            <div class="collapse-content">
+              <div class="w-full p-3">
+                <div class="flex justify-center w-full" :class="user?.avatar ? user.avatar : null">
+                  <img
+                    class="bg-white border-4 rounded-full border-neutral-500 w-36 h-36"
+                    :src="user?.avatar"
+                    alt=""
+                    srcset=""
+                  />
+                </div>
+                <div class="w-full text-center">
+                  {{ user?.first_name + ' ' + user?.last_name }}
+                </div>
+              </div>
+              <nav-item
+                @click="mob_nav = false"
+                v-for="route in routes"
+                v-bind:key="route.name"
+                :logo="route.icon"
+                :expand="true"
+                :route="route.route"
+                :routeName="route.routeName"
+                :mobile="true"
+              >
+                {{ route.name }}
+              </nav-item>
+              <nav-item
+                @click="logout()"
+                logo="ic:baseline-logout"
+                :expand="true"
+                route="/login"
+                routeName="Login"
+                :mobile="true"
+              >
+                Logout
+              </nav-item>
             </div>
           </div>
+          <div></div>
         </div>
         <div class="hidden py-2 bg-transparent px-9 rounded-3xl lg:block">
           <div class="flex items-center justify-between pb-2">
@@ -167,8 +232,19 @@ export default {
                 <div class="">
                   <ul
                     tabindex="0"
-                    class="dropdown-content bg-neutral-50 text-neutral-900 z-[1] menu p-2 m-1 shadow rounded-box w-52"
+                    class="dropdown-content bg-neutral-50 text-neutral-900 z-[1] menu p-2 m-1 shadow rounded-box w-56"
                   >
+                    <li>
+                      <div class="flex flex-col justify-center text-center h-36">
+                        <img
+                          class="w-24 h-24 bg-white border-4 rounded-full border-neutral-500"
+                          :src="user?.avatar"
+                          alt=""
+                          srcset=""
+                        />
+                        <span>{{ user?.first_name + ' ' + user?.last_name }}</span>
+                      </div>
+                    </li>
                     <li @click="logout()"><a>Logout</a></li>
                   </ul>
                 </div>

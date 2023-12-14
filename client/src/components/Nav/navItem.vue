@@ -18,6 +18,10 @@ export default {
     routeName: {
       type: String,
       default: null
+    },
+    mobile: {
+      type: Boolean,
+      default: false
     }
   },
   components: {},
@@ -37,6 +41,7 @@ export default {
       :class="{
         'gap-0 transform': !expand,
         'gap-2 transform': expand,
+        'flex ': expand,
         'duration-300 ease-in-out': true,
         'text-slate-50': $route.name != routeName,
         'text-neutral-900 bg-slate-300': $route.name == routeName
@@ -47,6 +52,7 @@ export default {
         :class="{
           'w-0 transform ': !expand,
           'w-48 transform ': expand,
+          'w-full  transform ': mobile,
           '  duration-300 ease-in-out overflow-hidden': true
         }"
         class="whitespace-nowrap"

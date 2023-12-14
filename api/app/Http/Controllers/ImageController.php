@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 
 class ImageController extends Controller
 {
+
     public function chunk_upload(chunkUploadRequest $request)
     {
         $file = $request->file('file');
@@ -30,5 +31,18 @@ class ImageController extends Controller
             }
         }
         return response()->json(['id' => null]);
+    }
+
+
+    public function preview_image(Request $request, $file_name)
+    {
+        if (file_exists(storage_path('/app/public/gallery/' . $file_name))) {
+            $pathToFile = storage_path('/app/public/gallery/' . $file_name);
+            $ext = pathinfo($pathToFile, PATHINFO_EXTENSION);
+            $headers = ['Content-Type' => 'image/' . $ext];
+            return response()->file($pathToFile, $headers);
+        } else {
+            return response(['message' => 'Image Not Found!'], 404);
+        }
     }
 }

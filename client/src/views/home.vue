@@ -7,22 +7,51 @@ export default {
   data() {
     return {
       tab: 'edit',
-      articles: [
-        {
-          title: 'Sample article',
-          image:
-            'https://valorantfiles.com/images/sprays/22ae8535-40b6-95a3-c5b1-98a184b8909f/animation.gif',
-          link: 'Sample link',
-          date: new Date(),
-          writer: 'Monkey D. Luffy',
-          editor: 'Monkey D. Garp'
-        }
-      ]
+      articles: null,
+      published: null
     }
   },
-  watch: {},
-  async mounted() {},
-  methods: {}
+  watch: {
+    tab(val) {
+      if (val == 'edit') {
+        this.getForEdit()
+      }
+      this.getPublished()
+    }
+  },
+  async mounted() {
+    this.getForEdit()
+  },
+  methods: {
+    async getForEdit(page = 1) {
+      if (this.articles) {
+        this.articles.data = null
+      }
+      await this.$api
+        .get('/get/for-edit', {
+          params: {
+            page: page
+          }
+        })
+        .then((res) => {
+          this.articles = res.data
+        })
+    },
+    async getPublished(page = 1) {
+      if (this.published) {
+        this.published.data = null
+      }
+      await this.$api
+        .get('get/published', {
+          params: {
+            page: page
+          }
+        })
+        .then((res) => {
+          this.published = res.data
+        })
+    }
+  }
 }
 </script>
 
@@ -56,7 +85,69 @@ export default {
             </div>
 
             <div class="overflow-x-auto rounded-3xl">
-              <table class="table table-lg rounded-3xl bg-neutral-200">
+              <table
+                v-if="articles"
+                class="table table-lg rounded-3xl min-h-[50vh] max-h-[60vh] overflow-auto bg-neutral-200"
+              >
+                <thead>
+                  <tr
+                    class="text-base underline border-b-0.5 border-b-neutral-500 text-neutral-800"
+                  >
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Link</th>
+                    <th>Date</th>
+                    <th>Writer</th>
+                  </tr>
+                </thead>
+                <tbody class="rounded-b-sm text-neutral-800">
+                  <tr
+                    v-for="article in articles.data"
+                    v-bind:key="article.title"
+                    class="border-none"
+                  >
+                    <td>
+                      <div class="flex justify-center w-100">
+                        <div class="w-56 rounded-xl">
+                          <img class="object-contain" :src="article.img.preview_link" />
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ article.title }}</td>
+                    <td>{{ article.link }}</td>
+                    <td>
+                      {{ $dayjs(article.date).format('MMMM D, YYYY') }}
+                    </td>
+                    <td>{{ article.wrote.first_name + ' ' + article.wrote.last_name }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="flex items-center justify-center w-full">
+              <Paginate
+                v-if="articles"
+                :limit="1"
+                :item-classes="[
+                  'bg-neutral-300 text-neutral-800 rounded-2xl m-1 lg:m-2 px-3 lg:px-5'
+                ]"
+                :active-classes="['bg-neutral-800 px-3 lg:px-5 rounded-2xl m-1 lg:m-2']"
+                :data="articles"
+                @pagination-change-page="getForEdit"
+              />
+            </div>
+          </div>
+          <div v-if="tab == 'publish'" class="pt-7">
+            <div
+              class="pb-4 text-2xl font-semibold text-center lg:text-5xl md:text-4xl sm:text-3xl text-neutral-700"
+            >
+              Published articles
+            </div>
+
+            <div class="overflow-x-auto rounded-3xl">
+              <table
+                v-if="articles"
+                class="table table-lg rounded-3xl min-h-[50vh] max-h-[60vh] overflow-auto bg-neutral-200"
+              >
                 <thead>
                   <tr
                     class="text-base underline border-b-0.5 border-b-neutral-500 text-neutral-800"
@@ -70,11 +161,15 @@ export default {
                   </tr>
                 </thead>
                 <tbody class="rounded-b-sm text-neutral-800">
-                  <tr v-for="article in articles" v-bind:key="article.title" class="border-none">
+                  <tr
+                    v-for="article in published.data"
+                    v-bind:key="article.title"
+                    class="border-none"
+                  >
                     <td>
-                      <div class="avatar">
-                        <div class="w-24 rounded">
-                          <img class="hover:scale-150" :src="article.image" />
+                      <div class="flex justify-center w-100">
+                        <div class="w-56 rounded-xl">
+                          <img class="object-contain" :src="article.img.preview_link" />
                         </div>
                       </div>
                     </td>
@@ -83,40 +178,24 @@ export default {
                     <td>
                       {{ $dayjs(article.date).format('MMMM D, YYYY') }}
                     </td>
-                    <td>{{ article.writer }}</td>
-                    <td>{{ article.editor }}</td>
+                    <td>{{ article.wrote.first_name + ' ' + article.wrote.last_name }}</td>
+                    <td>{{ article.edited.first_name + ' ' + article.edited.last_name }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-          </div>
-          <div v-if="tab == 'publish'">
-            <!-- <table class="w-full table-auto">
-              <thead>
-                <tr>
-                  <th>Song</th>
-                  <th>Artist</th>
-                  <th>Year</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>The Sliding Mr. Bones (Next Stop, Pottersville)</td>
-                  <td>Malcolm Lockyer</td>
-                  <td>1961</td>
-                </tr>
-                <tr>
-                  <td>Witchy Woman</td>
-                  <td>The Eagles</td>
-                  <td>1972</td>
-                </tr>
-                <tr>
-                  <td>Shining Star</td>
-                  <td>Earth, Wind, and Fire</td>
-                  <td>1975</td>
-                </tr>
-              </tbody>
-            </table> -->
+            <div class="flex items-center justify-center w-full">
+              <Paginate
+                v-if="published"
+                :limit="1"
+                :item-classes="[
+                  'bg-neutral-300 text-neutral-800 rounded-2xl m-1 lg:m-2 px-3 lg:px-5'
+                ]"
+                :active-classes="['bg-neutral-800 px-3 lg:px-5 rounded-2xl m-1 lg:m-2']"
+                :data="published"
+                @pagination-change-page="getPublished"
+              />
+            </div>
           </div>
         </transition-group>
       </div>

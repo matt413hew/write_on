@@ -1,12 +1,6 @@
-<template>
-  <div class="w-full h-full p-0.5 lg:p-2 bg-transparent rounded-3xl">
-    <slot></slot>
-  </div>
-</template>
-
 <script>
 export default {
-  name: 'Page',
+  name: 'Companies',
   emits: [],
   props: {},
   components: {},
@@ -18,4 +12,11 @@ export default {
   methods: {}
 }
 </script>
+<template>
+  <Page>
+    <PageHead>Companies</PageHead>
+    <PageBody> </PageBody>
+  </Page>
+</template>
+
 <style scoped></style>

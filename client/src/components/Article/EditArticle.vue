@@ -1,17 +1,20 @@
 <script>
 export default {
-  name: 'Add Article',
+  name: 'Edit Article',
   emits: [],
   props: {
     role: {
       type: String,
+      default: null
+    },
+    article: {
+      type: Number,
       default: null
     }
   },
   components: {},
   data() {
     return {
-      article: null,
       hide: false
     }
   },
@@ -27,23 +30,17 @@ export default {
 
 <template>
   <div v-if="role" class="z-[50]">
-    <Tbtn
-      stretched
-      v-tooltip="'Create a new article'"
-      pad="4"
-      class=""
-      onclick="create_modal.showModal()"
+    <div
+      :onclick="'edit_modal' + article + '.showModal()'"
+      class="btn bg-neutral-50 !rounded-2xl text-neutral-800 border-none hover:bg-neutral-200"
     >
-      <div class="flex items-center gap-2 p-2 lg:p-0">
-        <Icon class="text-4xl lg:text-2xl" icon="streamline:add-1-solid" />
-        <span class="hidden lg:block">Create new article</span>
-      </div>
-    </Tbtn>
-    <dialog id="create_modal" :class="hide ? 'hidden' : ''" class="modal">
+      Edit
+    </div>
+    <dialog :id="'edit_modal' + article" :class="hide ? 'hidden' : ''" class="modal">
       <div class="bg-white text-neutral-800 max-w-7xl modal-box rounded-3xl">
         <h3 class="text-3xl font-bold">New Article</h3>
         <div class="text-end text-neutral-600"></div>
-        <EditArticle @loading="hide_modal" :role="role"></EditArticle>
+        <EditArticle :toeditArticle="article" @loading="hide_modal" :role="role"></EditArticle>
       </div>
     </dialog>
   </div>
