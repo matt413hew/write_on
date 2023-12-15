@@ -62,6 +62,15 @@ const useMainStore = defineStore("user", {
          console.log(err)
         })
     },
+    async addUser(user){
+        return await api.post('/new/user',user).then((res)=>{
+          if (res.data.message == 'success') {
+            return {message:'success',data:res.data.data}
+          }
+        }).catch((err)=>{
+         console.log(err)
+        })
+    },
     
   },
 });

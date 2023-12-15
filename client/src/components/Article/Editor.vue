@@ -1,7 +1,6 @@
 <script>
 import { QuillEditor } from '@vueup/vue-quill'
 import imageCompression from 'browser-image-compression'
-import { computed } from 'vue'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 export default {
   name: 'Edit Article',

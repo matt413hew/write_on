@@ -14,4 +14,13 @@ class Company extends Model
         'name',
         'status'
     ];
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
+    public function scopeInactive($query)
+    {
+        return $query->where('status', 1);
+    }
 }

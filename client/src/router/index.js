@@ -6,6 +6,7 @@ import Nav from "../components/Nav/navbar.vue";
 import Login from "../views/login.vue";
 import notFound from "../views/notFound.vue";
 import companies from "../views/companies.vue";
+import user from "../views/user.vue";
 import { useMainStore } from '@/stores';
 
 const Router = createRouter({
@@ -27,6 +28,12 @@ const Router = createRouter({
                 requiresEditor: true,
                 }, 
               name: "Companies", component: companies 
+            },
+            { path: "/users",
+                meta:{
+                requiresEditor: true,
+                }, 
+              name: "Users", component: user 
             },
        ]
     },

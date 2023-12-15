@@ -35,6 +35,12 @@ export default {
           icon: 'mdi:company',
           route: '/companies',
           routeName: 'Companies'
+        },
+        {
+          name: 'User Management',
+          icon: 'bx:group',
+          route: '/users',
+          routeName: 'Users'
         }
       ]
     } else {
