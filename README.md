@@ -10,7 +10,7 @@ To run the system please ensure the following are included in your system
 5. PHP 8.x
 6. VS Code - Developement
 
-##Database
+## Database
 Make sure to have a database with the name 'writeon'
 
 ## API
@@ -31,10 +31,10 @@ Make sure to have a database with the name 'writeon'
 
 ## Sample Credentials
 
-###WRITER
+### WRITER
 username: writer
 password: writerpass
 
-###EDITOR
+### EDITOR
 username: editor
 password: editorpass
